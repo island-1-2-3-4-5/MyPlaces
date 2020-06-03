@@ -38,15 +38,16 @@ class MainViewController: UITableViewController {
 
     // Конфигурация ячейки
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        // надо работать с другим классом, проэтому делаем приведение типа
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
 
         // присваиваем названия заведений, с помощью сопоставления индексов ячеек и индексов значений массива
-        cell.textLabel?.text = restaurantNames[indexPath.row]
+        cell.nameLabel.text = restaurantNames[indexPath.row]
         // Присваиваем изображение, при этом названия изображений должны совпадать с названиями ресторанов
-        cell.imageView?.image = UIImage(named: restaurantNames[indexPath.row])
-        // закругляем картинки, отталкиваемся от высоты ячейки
-        cell.imageView?.layer.cornerRadius = cell.frame.size.height / 2
-        cell.imageView?.clipsToBounds = true
+        cell.imageOfPlace.image = UIImage(named: restaurantNames[indexPath.row])
+        // закругляем картинки, отталкиваемся от высоты изображения
+        cell.imageOfPlace.layer.cornerRadius = cell.imageOfPlace.frame.size.height / 2
+        cell.imageOfPlace.clipsToBounds = true
         
         return cell
     }
