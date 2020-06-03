@@ -44,10 +44,18 @@ class MainViewController: UITableViewController {
         cell.textLabel?.text = restaurantNames[indexPath.row]
         // Присваиваем изображение, при этом названия изображений должны совпадать с названиями ресторанов
         cell.imageView?.image = UIImage(named: restaurantNames[indexPath.row])
-
+        // закругляем картинки, отталкиваемся от высоты ячейки
+        cell.imageView?.layer.cornerRadius = cell.frame.size.height / 2
+        cell.imageView?.clipsToBounds = true
+        
         return cell
     }
     
+    
+    // MARK: Устанавливаем высоту строк
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 85
+    }
 /*
     // MARK: - Navigation
 
