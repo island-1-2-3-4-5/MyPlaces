@@ -7,20 +7,18 @@
 //
 
 import UIKit
+import RealmSwift
 
 class MainViewController: UITableViewController {
 
-    
-    // массив с названиями заведений заведениями
-    let restaurantNames = [
-        "Burger Heroes", "Kitchen", "Bonsai", "Дастархан",
-        "Индокитай", "X.O", "Балкан Гриль", "Sherlock Holmes",
-        "Speak Easy", "Morris Pub", "Вкусные истории",
-        "Классик", "Love&Life", "Шок", "Бочка"
-    ]
+    // создаем переменную которая является хранилищем для объектов в Realm
+    var places: Results<Place>! // Results - аналог массива
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        places = realm.objects(Place.self)
 
 
     }
@@ -32,7 +30,7 @@ class MainViewController: UITableViewController {
 // MARK: Возвращает количество строк
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
        // зависит от количества элементов в массиве
-        return restaurantNames.count
+        return places.isEmpty ? 0 : places.count // если в модели пусто возвращаем 0
     }
 
 
@@ -41,30 +39,55 @@ class MainViewController: UITableViewController {
         // надо работать с другим классом, проэтому делаем приведение типа
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
 
+        // создаем переменную которая построчно обращается к объектам массива
+        let place = places[indexPath.row]
         // присваиваем названия заведений, с помощью сопоставления индексов ячеек и индексов значений массива
-        cell.nameLabel.text = restaurantNames[indexPath.row]
-        // Присваиваем изображение, при этом названия изображений должны совпадать с названиями ресторанов
-        cell.imageOfPlace.image = UIImage(named: restaurantNames[indexPath.row])
+        cell.nameLabel.text = place.name// обращаемся к экземпляру и у него берем имя
+        cell.locationLabel.text = place.location
+        cell.typeLabel.text = place.type
+
+        cell.imageOfPlace.image = UIImage(data: place.imageData!)
+
         // закругляем картинки, отталкиваемся от высоты изображения
         cell.imageOfPlace.layer.cornerRadius = cell.imageOfPlace.frame.size.height / 2
+        // обрезаем изображение
         cell.imageOfPlace.clipsToBounds = true
-        
+
         return cell
     }
     
     
-    // MARK: Устанавливаем высоту строк
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 85
-    }
-/*
+    // MARK: TableDelegate
+   
+      
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+          
+          let place = places[indexPath.row]
+        // удаляем из таблицы строку с объектом и сам объект из базы данных
+          let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (_, _) in
+              
+              StorageManager.deleteObject(place)
+              tableView.deleteRows(at: [indexPath], with: .automatic)
+          }
+          
+          return [deleteAction]
+      }
+    
+    
+ 
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    // создаем этот метод для того, чтобы мы могли на него сослаться из последнего контроллера(кнопка cancel)
+    @IBAction func unwindSegue(_ segue: UIStoryboardSegue) {
+        
+        // передаем новое значение в таблицу
+        guard let newPlaceVC = segue.source as? NewPlaceViewController else {return}
+        
+        
+        newPlaceVC.saveNewPlace()
+        // перезагружаем таблицу после добавления объекта
+        tableView.reloadData()
     }
-    */
 
+    
 }

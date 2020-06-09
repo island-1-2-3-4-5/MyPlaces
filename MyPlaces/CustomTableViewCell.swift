@@ -8,6 +8,7 @@
 
 import UIKit
 
+// Этот класс нужен бля того, чтобы мы могли работать с содержимым этой ячейки
 class CustomTableViewCell: UITableViewCell {
 
     @IBOutlet weak var imageOfPlace: UIImageView!
