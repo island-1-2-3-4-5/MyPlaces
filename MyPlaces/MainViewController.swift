@@ -17,7 +17,7 @@ class MainViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
+        // делаем отображение базы данных, делаем запрос к отображаемому типу данных Place
         places = realm.objects(Place.self)
 
 
@@ -34,7 +34,8 @@ class MainViewController: UITableViewController {
     }
 
 
-    // Конфигурация ячейки
+    
+    //MARK: Конфигурация ячейки
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // надо работать с другим классом, проэтому делаем приведение типа
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
@@ -45,8 +46,7 @@ class MainViewController: UITableViewController {
         cell.nameLabel.text = place.name// обращаемся к экземпляру и у него берем имя
         cell.locationLabel.text = place.location
         cell.typeLabel.text = place.type
-
-        cell.imageOfPlace.image = UIImage(data: place.imageData!)
+        cell.imageOfPlace.image = UIImage(data: place.imageData!) // данное свойство все есть
 
         // закругляем картинки, отталкиваемся от высоты изображения
         cell.imageOfPlace.layer.cornerRadius = cell.imageOfPlace.frame.size.height / 2
@@ -55,6 +55,8 @@ class MainViewController: UITableViewController {
 
         return cell
     }
+    
+    
     
     
     // MARK: TableDelegate
@@ -77,6 +79,19 @@ class MainViewController: UITableViewController {
  
     // MARK: - Navigation
 
+    // При нажатии на ячеку будет открываться информация о ней на другом контроллере
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+      // если срабатывает такой идентификатор (который мы присвоили), то передаем данные на него
+        if segue.identifier == "showDetail" {
+            // обращаемся к выбранной ячейке по индексу
+            guard let indexPath = tableView.indexPathForSelectedRow  else {return}
+            let place = places[indexPath.row]
+            let newPlaceVC = segue.destination as! NewPlaceViewController // сразу извлекаем опционал
+            newPlaceVC.currentPlace = place // и обращаемся к свойству currentPlace из NewPlaceViewController, чтобы передать информацию о ячейке туда
+        }
+    }
+    
+    
     // создаем этот метод для того, чтобы мы могли на него сослаться из последнего контроллера(кнопка cancel)
     @IBAction func unwindSegue(_ segue: UIStoryboardSegue) {
         
@@ -84,7 +99,7 @@ class MainViewController: UITableViewController {
         guard let newPlaceVC = segue.source as? NewPlaceViewController else {return}
         
         
-        newPlaceVC.saveNewPlace()
+        newPlaceVC.savePlace()
         // перезагружаем таблицу после добавления объекта
         tableView.reloadData()
     }

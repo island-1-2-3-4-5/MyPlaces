@@ -19,9 +19,9 @@ class Place: Object {
     // изображение будем брать из ImageView
     
     
-    // вспомогательный инициализатор, с помощью него вносим новые значения в базу
+    // вспомогательный инициализатор (не является обязательным), с помощью него вносим новые значения в базу
     convenience init(name: String, location: String?, type: String?, imageData: Data?){
-        self.init()
+        self.init() //  сначала инициализируется обычный инициализатор а после присваиваем новые значения
         self.name = name
         self.location = location
         self.type = type

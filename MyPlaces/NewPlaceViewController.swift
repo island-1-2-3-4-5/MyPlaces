@@ -7,12 +7,13 @@
 //
 
 // selection - none для 2-4й ячейки, чтобы они не выделялись
+// Для открытия информации о уже имеющейся ячейке с заполнением всех полей, создадим отдельный метод private func setupEditScreen()
 
 import UIKit
 
 class NewPlaceViewController: UITableViewController {
-
-    
+// это свойство содержит информацию о текущей выбранной ячейке
+    var currentPlace: Place?
     var imageIsChanged = false
     
     @IBOutlet weak var saveButton: UIBarButtonItem!
@@ -35,6 +36,9 @@ class NewPlaceViewController: UITableViewController {
         
         // это поле обязательно для заполнения, поэтому будем отслеживать заполнение для разблокировки save
         placeName.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
+       
+        // вызываем метод передачи информации об ячейке
+        setupEditScreen()
    
     }
     
@@ -92,9 +96,8 @@ class NewPlaceViewController: UITableViewController {
         }
     }
     
-    // обрабатываем введенное значение из поля placeName
-    func saveNewPlace() {
-        
+// MARK: Сохраняем новое место
+    func savePlace() {
         
         
         var image: UIImage?
@@ -105,16 +108,59 @@ class NewPlaceViewController: UITableViewController {
             image = #imageLiteral(resourceName: "imagePlaceholder")
         }
         
+        // делаем приведение типа, тк наша модель может работать только с Data
         let imageData = image?.pngData()
         
+        // инициализируем с помощью вспомогательного инициализатора
         let newPlace = Place(name: placeName.text!,
                              location: placeLocation.text,
                              type: placeType.text,
                              imageData: imageData)
         
-        StorageManager.saveObject(newPlace)
+        if currentPlace != nil {
+            try! realm.write{
+                currentPlace?.name = newPlace.name
+                currentPlace?.location = newPlace.location
+                currentPlace?.type = newPlace.type
+                currentPlace?.imageData = newPlace.imageData
+            }
+        } else {
+            // сохраняем новый объект в базе
+            StorageManager.saveObject(newPlace)
+        }
+        
+        
     }
-
+    
+    
+    
+    // MARK: Функция для просмотра ячейки
+    private func setupEditScreen() {
+        if currentPlace != nil {
+            
+            setupNavigationBar()
+            imageIsChanged = true // это надо для того, чтобы не пропадало изображение
+            guard let data = currentPlace?.imageData, let image = UIImage(data: data) else {return}
+            
+            placeImage.image = image
+            placeImage.contentMode = .scaleAspectFill // для правильного отображения картинки
+            placeName.text = currentPlace?.name
+            placeLocation.text = currentPlace?.location
+            placeType.text = currentPlace?.type
+        }
+    }
+    
+    // Метод для навигации
+    private func setupNavigationBar() {
+        if let topItem = navigationController?.navigationBar.topItem {
+            topItem.backBarButtonItem = UIBarButtonItem(title: "back", style: .plain, target: nil, action: nil)
+        }
+        navigationItem.leftBarButtonItem = nil
+        title = currentPlace?.name
+        saveButton.isEnabled = true
+    }
+    
+    
    
     @IBAction func cancelAction(_ sender: UIBarButtonItem) {
         dismiss(animated: true)
