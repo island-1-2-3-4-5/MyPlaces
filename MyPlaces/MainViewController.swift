@@ -9,13 +9,19 @@
 import UIKit
 import RealmSwift
 
-class MainViewController: UITableViewController {
+class MainViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
+    @IBOutlet weak var reversedCortingButton: UIBarButtonItem!
     // создаем переменную которая является хранилищем для объектов в Realm
     var places: Results<Place>! // Results - аналог массива
+    var ascendingSorting = true // логическое свойство для сортировки по возрастанию
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        print(Realm.Configuration.defaultConfiguration.fileURL!)
         
         // делаем отображение базы данных, делаем запрос к отображаемому типу данных Place
         places = realm.objects(Place.self)
@@ -28,7 +34,7 @@ class MainViewController: UITableViewController {
     
 
 // MARK: Возвращает количество строк
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
        // зависит от количества элементов в массиве
         return places.isEmpty ? 0 : places.count // если в модели пусто возвращаем 0
     }
@@ -36,7 +42,7 @@ class MainViewController: UITableViewController {
 
     
     //MARK: Конфигурация ячейки
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // надо работать с другим классом, проэтому делаем приведение типа
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
 
@@ -62,7 +68,7 @@ class MainViewController: UITableViewController {
     // MARK: TableDelegate
    
       
-    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
           
           let place = places[indexPath.row]
         // удаляем из таблицы строку с объектом и сам объект из базы данных
@@ -105,4 +111,37 @@ class MainViewController: UITableViewController {
     }
 
     
+    // сортируем по имени или дате
+    @IBAction func sortSelection(_ sender: UISegmentedControl) {
+        
+       sorting()
+    }
+    
+    
+    @IBAction func reversedSorting(_ sender: UIBarButtonItem) {
+        
+        // toggle - меняе значение на противоположное
+        ascendingSorting.toggle()
+        
+        // меняем иконку кнопки сортировки по возрастанию
+        if ascendingSorting {
+            reversedCortingButton.image = #imageLiteral(resourceName: "AZ")
+        } else {
+            reversedCortingButton.image = #imageLiteral(resourceName: "ZA")
+        }
+        
+        sorting()
+    }
+    
+    
+    private func sorting() {
+        
+        // сортируем в зависимости от значения сортировки, либо по убыванию либо по возрастанию
+        if segmentedControl.selectedSegmentIndex == 0{
+            places = places.sorted(byKeyPath: "date", ascending: ascendingSorting)
+        } else {
+            places = places.sorted(byKeyPath: "name", ascending: ascendingSorting)
+        }
+        tableView.reloadData()
+    }
 }

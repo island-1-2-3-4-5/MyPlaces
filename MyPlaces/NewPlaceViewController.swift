@@ -134,14 +134,18 @@ class NewPlaceViewController: UITableViewController {
     
     
     
-    // MARK: Функция для просмотра ячейки
+    // MARK: Функция для редактирования
     private func setupEditScreen() {
         if currentPlace != nil {
             
+            // если выбранная ячейка не пустая, то вызывается метод для навигации
             setupNavigationBar()
             imageIsChanged = true // это надо для того, чтобы не пропадало изображение
+            
+            // т.к. в нашей модели изображение хранится в формате Data, то нам надо обратно преобразовать его в UIImage
             guard let data = currentPlace?.imageData, let image = UIImage(data: data) else {return}
             
+            // перезаполняем наши Outlets
             placeImage.image = image
             placeImage.contentMode = .scaleAspectFill // для правильного отображения картинки
             placeName.text = currentPlace?.name
@@ -150,13 +154,18 @@ class NewPlaceViewController: UITableViewController {
         }
     }
     
-    // Метод для навигации
+    //MARK: Навигация при редактировании
     private func setupNavigationBar() {
+        // если существует Item в навигационном баре, то можно там что-то изменить
         if let topItem = navigationController?.navigationBar.topItem {
+            // меняем наименование кнопки возврата
             topItem.backBarButtonItem = UIBarButtonItem(title: "back", style: .plain, target: nil, action: nil)
         }
-        navigationItem.leftBarButtonItem = nil
+        
+        navigationItem.leftBarButtonItem = nil // убираем кнопку cancel, чтобы вметсо неё была кнопка back
+        // меняем заголовок на название выбранного места
         title = currentPlace?.name
+        // делаем кнопку save активной
         saveButton.isEnabled = true
     }
     

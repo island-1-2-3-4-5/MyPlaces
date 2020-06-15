@@ -6,6 +6,9 @@
 //  Copyright © 2020 Roman Monakhov. All rights reserved.
 //
 
+// в файле appDelegate добавили пару строк кода для изменений модели данных
+
+
 import RealmSwift
 // делаем модель хранения данных как класс, с типом данных Object
 class Place: Object {
@@ -17,6 +20,7 @@ class Place: Object {
     // изображения хранятся в типе Data
     @objc dynamic  var imageData: Data?
     // изображение будем брать из ImageView
+    @objc dynamic  var date = Date() // надо для сортировки по дате
     
     
     // вспомогательный инициализатор (не является обязательным), с помощью него вносим новые значения в базу
