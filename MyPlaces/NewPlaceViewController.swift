@@ -29,7 +29,10 @@ class NewPlaceViewController: UITableViewController {
         super.viewDidLoad()
 
         // убираем разлиновку после ячеек
-        tableView.tableFooterView = UIView()
+        tableView.tableFooterView = UIView(frame: CGRect(x: 0,
+                                                         y: 0,
+                                                         width: tableView.frame.size.width,
+                                                         height: 1))
         
         // блокируем кнопку  save
         saveButton.isEnabled = false
