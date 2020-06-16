@@ -101,20 +101,22 @@ class MainViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     
     // MARK: - Удаление записей
-   
-      
-     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-          
-          let place = places[indexPath.row]
+  
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let place = places[indexPath.row]
         // удаляем из таблицы строку с объектом и сам объект из базы данных
-          let deleteAction = UITableViewRowAction(style: .default, title: "Delete") { (_, _) in
-              
-              StorageManager.deleteObject(place)
-              tableView.deleteRows(at: [indexPath], with: .automatic)
-          }
-          
-          return [deleteAction]
-      }
+        let contextItem = UIContextualAction(style: .destructive,
+                                             title: "Delete") {  (_, _, _) in // (contextualAction, view, boolValue)
+            StorageManager.deleteObject(place)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            
+        }
+        let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
+
+        return swipeActions
+    }
     
     
  
