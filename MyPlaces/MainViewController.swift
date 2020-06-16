@@ -62,7 +62,7 @@ class MainViewController: UIViewController, UITableViewDelegate, UITableViewData
         }
         
        // зависит от количества элементов в массиве
-        return places.isEmpty ? 0 : places.count // если в модели пусто возвращаем 0
+        return places.count // если в модели пусто возвращаем 0
     }
 
 
@@ -72,24 +72,24 @@ class MainViewController: UIViewController, UITableViewDelegate, UITableViewData
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
 
         // в зависимости от фильтра выбираем тот ии иной массив для заполнения
-        var place = Place()
+        let place = isFiltering ? filteredPlaces[indexPath.row] : places[indexPath.row]
         
-        if isFiltering {
-            place = filteredPlaces[indexPath.row]
-        } else {
-            place = places[indexPath.row]
-        }
+        // Тоже самое что и сверху
+//        var place = Place()
+//        if isFiltering {
+//            place = filteredPlaces[indexPath.row]
+//        } else {
+//            place = places[indexPath.row]
+//        }
+        
        
         // присваиваем названия заведений, с помощью сопоставления индексов ячеек и индексов значений массива
         cell.nameLabel.text = place.name// обращаемся к экземпляру и у него берем имя
         cell.locationLabel.text = place.location
         cell.typeLabel.text = place.type
         cell.imageOfPlace.image = UIImage(data: place.imageData!) // данное свойство все есть
-
-        // закругляем картинки, отталкиваемся от высоты изображения
-        cell.imageOfPlace.layer.cornerRadius = cell.imageOfPlace.frame.size.height / 2
-        // обрезаем изображение
-        cell.imageOfPlace.clipsToBounds = true
+        cell.cosmosView.rating = place.rating
+        
 
         return cell
     }
@@ -128,12 +128,17 @@ class MainViewController: UIViewController, UITableViewDelegate, UITableViewData
         if segue.identifier == "showDetail" {
             // обращаемся к выбранной ячейке по индексу
             guard let indexPath = tableView.indexPathForSelectedRow  else {return}
-            var place = Place()
-            if isFiltering{
-                place = filteredPlaces[indexPath.row]
-            } else {
-                place = places[indexPath.row]
-            }
+            
+           // в зависимости от фильтра выбираем тот ии иной массив для заполнения
+            let place = isFiltering ? filteredPlaces[indexPath.row] : places[indexPath.row]
+            
+//            var place = Place()
+//            if isFiltering{
+//                place = filteredPlaces[indexPath.row]
+//            } else {
+//                place = places[indexPath.row]
+//            }
+            
             let newPlaceVC = segue.destination as! NewPlaceViewController // сразу извлекаем опционал
             newPlaceVC.currentPlace = place // и обращаемся к свойству currentPlace из NewPlaceViewController, чтобы передать информацию о ячейке туда
         }
