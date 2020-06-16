@@ -12,12 +12,11 @@
 import UIKit
 
 class NewPlaceViewController: UITableViewController {
-// это свойство содержит информацию о текущей выбранной ячейке
-    var currentPlace: Place!
+
+    var currentPlace: Place! // это свойство содержит информацию о текущей выбранной ячейке
     var imageIsChanged = false
     
     @IBOutlet weak var saveButton: UIBarButtonItem!
-    
     @IBOutlet weak var placeImage: UIImageView!
     @IBOutlet weak var placeName: UITextField!
     @IBOutlet weak var placeLocation: UITextField!
@@ -25,7 +24,7 @@ class NewPlaceViewController: UITableViewController {
     @IBOutlet weak var ratingControl: RatingControl!
     
     
-    
+    //MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -43,10 +42,10 @@ class NewPlaceViewController: UITableViewController {
        
         // вызываем метод передачи информации об ячейке
         setupEditScreen()
-   
     }
     
-    // MARK: Table view delegate
+    
+    // MARK: - Table view delegate
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
      
@@ -59,7 +58,6 @@ class NewPlaceViewController: UITableViewController {
             let photoIcon = #imageLiteral(resourceName: "photo")
             
         
-            
             // экземпляр AlertController
             let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
             
@@ -73,7 +71,6 @@ class NewPlaceViewController: UITableViewController {
             camera.setValue(cameraIcon, forKey: "image")
             // сдвигаем текст влево на всплывающем уведомлении
             camera.setValue(CATextLayerAlignmentMode.left, forKey: "titleTextAlignment")
-            
             
             
             // вторая кнопка - вызывает галерею
@@ -100,9 +97,9 @@ class NewPlaceViewController: UITableViewController {
         }
     }
     
-// MARK: Сохраняем новое место
+    
+// MARK: - Сохраняем новое место
     func savePlace() {
-        
         
         var image: UIImage?
         
@@ -134,13 +131,11 @@ class NewPlaceViewController: UITableViewController {
             // сохраняем новый объект в базе
             StorageManager.saveObject(newPlace)
         }
-        
-        
     }
     
     
     
-    // MARK: Функция для редактирования
+    // MARK: - Функция для редактирования
     private func setupEditScreen() {
         if currentPlace != nil {
             
@@ -161,7 +156,8 @@ class NewPlaceViewController: UITableViewController {
         }
     }
     
-    //MARK: Навигация при редактировании
+    
+    //MARK: - Навигация назад Main
     private func setupNavigationBar() {
         // если существует Item в навигационном баре, то можно там что-то изменить
         if let topItem = navigationController?.navigationBar.topItem {
@@ -169,7 +165,8 @@ class NewPlaceViewController: UITableViewController {
             topItem.backBarButtonItem = UIBarButtonItem(title: "back", style: .plain, target: nil, action: nil)
         }
         
-        navigationItem.leftBarButtonItem = nil // убираем кнопку cancel, чтобы вметсо неё была кнопка back
+        
+        navigationItem.leftBarButtonItem = nil // убираем кнопку cancel, чтобы вместо неё была кнопка back
         // меняем заголовок на название выбранного места
         title = currentPlace?.name
         // делаем кнопку save активной
@@ -177,16 +174,25 @@ class NewPlaceViewController: UITableViewController {
     }
     
     
-   
     @IBAction func cancelAction(_ sender: UIBarButtonItem) {
         dismiss(animated: true)
     }
     
     
-
+    //MARK: - Навигация вперед Map
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier != "showMap" {
+            return
+        }
+        
+        let mapVC = segue.destination as! MapViewController
+        // передаем текущее заведение на MapViewController
+        mapVC.place = currentPlace
+    }
 }
 
-// MARK: TEXT field delegate
+
+// MARK: - TEXT field delegate
 
 extension NewPlaceViewController: UITextFieldDelegate{
    
@@ -206,7 +212,7 @@ extension NewPlaceViewController: UITextFieldDelegate{
 }
 
 
-// MARK: Работа с изображением
+// MARK: - Работа с изображением
 extension NewPlaceViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     
     // выбор фото из библиотеки пользователя
@@ -225,6 +231,7 @@ extension NewPlaceViewController: UIImagePickerControllerDelegate, UINavigationC
             present(imagePicker, animated: true)
         }
     }
+    
     
     // этот метод позволяет присвоить выбранное изображение аутлету
     func imagePickerController(_ picker: UIImagePickerController,
